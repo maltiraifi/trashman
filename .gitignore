@@ -1,0 +1,39 @@
+# Compiled binaries and executables
+*.exe
+*.out
+*.bin
+*.o
+*.a
+*.so
+*.dll
+
+# Debug and release builds
+build/
+debug/
+release/
+bin/
+obj/
+
+# Editor/IDE specific files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Logs and temporary files
+*.log
+*.tmp
+
+# Dependency directories (if using package managers)
+deps/
+vendor/
+
+# Test binaries
+test_runner
+*.test
+
