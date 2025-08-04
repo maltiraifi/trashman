@@ -1,27 +1,47 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <getopt.h> // for getopt_long()
 
 int main(int argc, char *argv[]) {
-  // if +1 files failed, set status to 1 to indicate failure.
   int exit_status = EXIT_SUCCESS;
+  int verbose = 0; // Verbose logic indicator 
+  
+  struct option long_opts[] = {
+    {"verbose", no_argument, 0, 'v'},
+    {0, 0, 0, 0}
+  };
 
-  // 1. Check at least 2 arguments are present
-  if (argc < 2) {
-    fprintf(stderr, "usage: %s <file1> [<file2>, ...]\n", argv[0]);
+  int opt;
+  while ((opt = getopt_long(argc, argv, "v", long_opts, NULL)) != -1) {
+    switch (opt) {
+      case 'v':
+        verbose = 1;
+        break;
+      case '?':
+        if (optopt)
+          fprintf(stderr, "Unknown option -%c\n", optopt);
+        else
+          fprintf(stderr, "Unknown option -%s\n", argv[optind-1]);
+        exit(EXIT_FAILURE);
+    }
+  }
+  
+
+  if (optind >= argc) {
+    fprintf(stderr, "Error: No files specified.\n");
+    fprintf(stderr, "usage: %s [-v|--verbose] <file1> [<file2> ...]\n", argv[0]);
     return EXIT_FAILURE;
   }
  
-  // 2. Loop through argc, remove files, and handle errors 
-  for (int i = 1; i < argc; i++) {
+  for (int i = optind; i < argc; i++) {
     const char *file_name = argv[i];
     if (remove(file_name) != 0) {
       perror(file_name);
-      exit_status = 1;
-    } else {
-      printf("File '%s' successfully removed.\n", file_name);
+      exit_status = EXIT_FAILURE;
+    } else if (verbose) {
+      printf("Remove '%s' successfully.\n", file_name);
     }
   }
  
-  // 3. Return success status
   return exit_status;
 }
