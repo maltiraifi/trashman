@@ -79,6 +79,12 @@ int main(int argc, char *argv[]) {
   for (int i = optind; i < argc; i++) {
     const char *file_name = argv[i];
 
+    if (file_name[0] == '\0') {
+      fprintf(stderr, "Error: Empty filename provided.\n");
+      exit_status = EXIT_FAILURE;
+      continue;
+    }
+
     if (interactive && !prompt_ans(file_name)) {
       continue; // skip current iteration
     }
