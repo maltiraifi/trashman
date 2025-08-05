@@ -17,7 +17,7 @@ bool prompt_ans(const char *file_name) {
 
   // while loop; re-prompting till valid
   while (1) {
-    printf("trashman: remove file '%s'? ", file_name); 
+    printf("trashman: remove file '%s'? [y/N] ", file_name); 
     fflush(stdout);
 
     if (fgets(buf, sizeof(buf), stdin) == NULL) {
@@ -40,6 +40,20 @@ bool prompt_ans(const char *file_name) {
  }
 }
 
+void show_help(const char* prog_name) {
+  printf("Usage: %s [OPTIONS] <file1> [<file2> ...]\n"
+         "Remove files with optional confirmation and verbose output.\n\n"
+         "Options:\n"
+         "  -h, --help         Show this help message and exit\n"
+         "  -v, --verbose      Show detailed operation output\n"
+         "  -i, --interactive  Prompt before each deletion\n\n"
+         "Examples:\n"
+         "  %s file.txt            # Silent deletion\n"
+         "  %s -vi *.log          # Interactive verbose mode\n",
+           prog_name, prog_name, prog_name);
+  exit(EXIT_SUCCESS);
+}
+
 int main(int argc, char *argv[]) {
   int exit_status = EXIT_SUCCESS;
   int verbose = 0; // Verbose logic indicator 
@@ -48,11 +62,12 @@ int main(int argc, char *argv[]) {
   struct option long_opts[] = {
     {"verbose", no_argument, 0, 'v'},
     {"interactive", no_argument, 0, 'i'},
+    {"help", no_argument, 0, 'h'},
     {0, 0, 0, 0}
   };
 
   int opt;
-  while ((opt = getopt_long(argc, argv, "vi", long_opts, NULL)) != -1) {
+  while ((opt = getopt_long(argc, argv, "hvi", long_opts, NULL)) != -1) {
     switch (opt) {
       case 'v':
         verbose = 1;
@@ -60,11 +75,15 @@ int main(int argc, char *argv[]) {
       case 'i': 
         interactive = 1;
         break;
+      case 'h':
+        show_help(argv[0]);
+        break;
       case '?':
         if (optopt)
           fprintf(stderr, "Unknown option -%c\n", optopt);
         else
           fprintf(stderr, "Unknown option -%s\n", argv[optind-1]);
+        fprintf(stderr, "Try '%s --help' for more information.\n", argv[0]);
         exit(EXIT_FAILURE);
     }
   }
@@ -72,7 +91,7 @@ int main(int argc, char *argv[]) {
 
   if (optind >= argc) {
     fprintf(stderr, "Error: No files specified.\n");
-    fprintf(stderr, "usage: %s [-v|--verbose] [-i|--interactive] <file1> [<file2> ...]\n", argv[0]);
+    fprintf(stderr, "Try: '%s --help' for usage information.\n", argv[0]);
     return EXIT_FAILURE;
   }
  
@@ -93,7 +112,7 @@ int main(int argc, char *argv[]) {
       perror(file_name);
       exit_status = EXIT_FAILURE;
     } else if (verbose) {
-      printf("Remove '%s' successfully.\n", file_name);
+      printf("Removed '%s'.\n", file_name);
     }
   }
  
